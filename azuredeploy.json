@@ -9,7 +9,7 @@
         "description": "principalId if the user that will be given contributor access to the resourceGroup"
       }
     },
-    "builtInRoleType": {
+    "roleName": {
       "type": "string",
       "allowedValues": [
                 "Reader"
@@ -22,7 +22,7 @@
   },
   "variables": {
     // this creates an idempotent GUID for the role assignment
-    "roleAssignmentName": "[guid(subscription().id, parameters('principalId'), parameters('builtInRoleType'))]",
+    "roleAssignmentName": "[guid(subscription().id, parameters('principalId'), parameters('roleName'))]",
     "Reader": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]"
 
    },
@@ -32,7 +32,7 @@
       "apiVersion": "2020-04-01-preview",
       "name": "[variables('roleAssignmentName')]",
       "properties": {
-        "roleDefinitionId": "[variables(parameters('builtInRoleType'))]",
+        "roleDefinitionId": "[variables(parameters('roleName'))]",
         "principalId": "[parameters('principalId')]",
         "scope": "[subscription().id]"
       }
