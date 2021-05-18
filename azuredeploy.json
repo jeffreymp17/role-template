@@ -1,34 +1,35 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "roleDefinitionID": {
-      "type": "string",
-      "defaultValue":"acdd72a7-3385-48ef-bd42-f606fba81ae7",
-      "metadata": {
-        "description": "Specifies the role definition ID used in the role assignment."
-      }
-    },
     "principalId": {
       "type": "string",
       "defaultValue":"acdd72a7-3385-48ef-bd42-f606fba81ae7",
       "metadata": {
-        "description": "Specifies the principal ID assigned to the role."
+        "description": "principalId if the user that will be given contributor access to the resourceGroup"
+      }
+    },
+    "roleDefinitionId": {
+      "type": "string",
+      "defaultValue":"acdd72a7-3385-48ef-bd42-f606fba81ae7",
+      "metadata": {
+        "description": "roleDefinition for the assignment - default is reader"
       }
     }
   },
   "variables": {
-    "roleAssignmentName": "[guid(parameters('principalId'), parameters('roleDefinitionID'), resourceGroup().id)]"
-  },
+    // this creates an idempotent GUID for the role assignment
+    "roleAssignmentName": "[guid(subscription().id, parameters('principalId'), parameters('roleDefinitionId'))]"
+   },
   "resources": [
     {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "name": "[variables('roleAssignmentName')]",
       "properties": {
-        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
         "principalId": "[parameters('principalId')]",
-        "scope": "[resourceGroup().id]"
+        "scope": "[subscription().id]"
       }
     }
   ]
