@@ -1,33 +1,39 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "principalId": {
       "type": "string",
+      "defaultValue":"42434-423434-343242",
       "metadata": {
         "description": "principalId if the user that will be given contributor access to the resourceGroup"
       }
     },
-    "roleDefinitionId": {
+    "roleName": {
       "type": "string",
-      "defaultValue": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
+      "allowedValues": [
+                "Reader"
+            ],
+      "defaultValue": "Reader",
       "metadata": {
-        "description": "roleDefinition for the assignment - default is owner"
+        "description": "roleDefinition for the assignment - default is reader"
       }
     }
   },
   "variables": {
-    "roleAssignmentName": "[guid('/', parameters('principalId'), parameters('roleDefinitionId'))]"
-  },
+    "roleAssignmentName": "[guid(subscription().id, parameters('principalId'), parameters('roleName'))]",
+    "Reader": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]"
+
+   },
   "resources": [
     {
-      "name": "[variables('roleAssignmentName')]",
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-03-01-preview",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[variables('roleAssignmentName')]",
       "properties": {
-        "roleDefinitionId": "[tenantResourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+        "roleDefinitionId": "[variables(parameters('roleName'))]",
         "principalId": "[parameters('principalId')]",
-        "scope": "/"
+        "scope": "[subscription().id]"
       }
     }
   ]
