@@ -1,40 +1,33 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "principalId": {
       "type": "string",
-      "defaultValue":"acdd72a7-3385-48ef-bd42-f606fba81ae7",
       "metadata": {
         "description": "principalId if the user that will be given contributor access to the resourceGroup"
       }
     },
-    "roleName": {
+    "roleDefinitionId": {
       "type": "string",
-      "allowedValues": [
-                "Reader"
-            ],
-      "defaultValue": "Reader",
+      "defaultValue": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
       "metadata": {
-        "description": "roleDefinition for the assignment - default is reader"
+        "description": "roleDefinition for the assignment - default is owner"
       }
     }
   },
   "variables": {
-    // this creates an idempotent GUID for the role assignment
-    "roleAssignmentName": "[guid(subscription().id, parameters('principalId'), parameters('roleName'))]",
-    "Reader": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]"
-
-   },
+    "roleAssignmentName": "[guid('/', parameters('principalId'), parameters('roleDefinitionId'))]"
+  },
   "resources": [
     {
-      "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
       "name": "[variables('roleAssignmentName')]",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-03-01-preview",
       "properties": {
-        "roleDefinitionId": "[variables(parameters('roleName'))]",
+        "roleDefinitionId": "[tenantResourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
         "principalId": "[parameters('principalId')]",
-        "scope": "[subscription().id]"
+        "scope": "/"
       }
     }
   ]
